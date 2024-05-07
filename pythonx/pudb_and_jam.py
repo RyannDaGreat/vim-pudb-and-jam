@@ -4,9 +4,26 @@ import vim
 from bdb import Breakpoint
 from itertools import starmap
 from linecache import checkcache
-from pudb.settings import (
-    load_breakpoints, save_breakpoints, get_breakpoints_file_name)
-from pudb import NUM_VERSION
+
+import os
+import sys
+
+
+try:
+    if 'RP_PUDB_SYS_VERSION_INFO' in os.environ:
+        #Trick PUDB into using another python's breakpoint file
+        #Pudb decides this during import, and it only depends on the python
+        old_version_info=sys.version_info
+        #Its gotta be a tuple. Lists are no good for % formatting apparently
+        sys.version_info=tuple(eval(os.environ['RP_PUDB_SYS_VERSION_INFO']))
+
+    from pudb.settings import (
+        load_breakpoints, save_breakpoints, get_breakpoints_file_name)
+    from pudb import NUM_VERSION
+
+finally:
+    if 'old_version_info' in vars():
+        sys.version_info=old_version_info
 
 LOAD_ARGS = () if NUM_VERSION >= (2013, 1) else (None,)
 
